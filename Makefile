@@ -34,7 +34,7 @@ default: compile upload clean
 
 compile:
 	$(COMPILE) -Os -Wall -mmcu=$(DEVICE) -DF_CPU=$(F_CPU) -DLED_PIN=$(LED_PIN) -c $(FILENAME).c -o build/$(FILENAME).o
-	$(LINK) -o build/$(FILENAME).elf build/$(FILENAME).o
+	$(COMPILE) -Wall -mmcu=$(DEVICE) build/$(FILENAME).o -o build/$(FILENAME).elf
 	$(OBJCOPY) -O ihex build/$(FILENAME).elf build/$(FILENAME).hex
 	$(SIZE) --format=avr --mcu=$(DEVICE) build/$(FILENAME).elf
 
