@@ -105,23 +105,14 @@ RESET:              LDI             R16, LOW(RAMEND)                ; set up sta
                     LDI             R16, (1<<PB5)                   ; set PB5 (pin 13 on Arduino UNO with builtin LED) as output
                     OUT             DDRB, R16
 
-                    LDI             XL, LOW(TCCR1A)                 ; load the address of TCCR1A into the X register
-                    LDI             XH, HIGH(TCCR1A)
-
                     EOR             R18, R18                        ; move the value of zero into TCCR1A
-                    ST              X, R18
-
-                    LDI             XL, LOW(TCCR1B)                 ; load the address of TCCR1B into the X register
-                    LDI             XH, HIGH(TCCR1B)
+                    STS             TCCR1A, R18
 
                     LDI             R18, (1<<CS12)                  ; set the prescaler for timer 1 to 256
-                    ST              X, R18
-
-                    LDI             XL, LOW(TIMSK1)                 ; load the address of TIMSK1 into the X register
-                    LDI             XH, HIGH(TIMSK1)
+                    STS             TCCR1B, R18
 
                     LDI             R18, (1<<TOIE1)                 ; enable timer overflow interrupts and enable global interrupts
-                    ST              X, R18
+                    STS             TIMSK1, R18
                     SEI
 
 LOOPFOREVER:        RJMP            LOOPFOREVER
