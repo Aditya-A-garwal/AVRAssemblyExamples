@@ -5,7 +5,6 @@
 .section .data
 
 .section .text
-
 .org 0x00
                     RJMP            RESET
 
@@ -85,42 +84,33 @@
                     RETI
 
 
-TIMER1_OVF_vect:    IN              R18, SREG                       ; store the contents of SREG on the stack
+TIMER1_OVF_vect:    IN              R18, _SFR_IO_ADDR (SREG)        ; store the contents of SREG on the stack
                     PUSH            R18
 
                     EOR             R17, R16
-                    OUT             PORTB, R17
+                    OUT             _SFR_IO_ADDR (PORTB), R17
 
                     POP             R18                             ; restore the contents of SREG from the stack and return
-                    OUT             SREG, R18
+                    OUT             _SFR_IO_ADDR (SREG), R18
                     RETI
 
 
-RESET:              LDI             R16, 0xff                       ; set up stack pointer (RAMEND=0x08ff)
-                    OUT             SPL, R16
-                    LDI             R16, 0x08
-                    OUT             SPH, R16
+RESET:              LDI             R16, lo8 (RAMEND)               ; set up stack pointer
+                    OUT             _SFR_IO_ADDR (SPL), R16
+                    LDI             R16, hi8 (RAMEND)
+                    OUT             _SFR_IO_ADDR (SPH), R16
 
                     LDI             R16, (1<<PB5)                   ; set PB5 (pin 13 on Arduino UNO with builtin LED) as output
-                    OUT             DDRB, R16
-
-                    LDI             XL, 0x80                        ; load the address of TCCR1A into the X register (TCCR1A=0x80)
-                    LDI             XH, 0x00
+                    OUT             _SFR_IO_ADDR (DDRB), R16
 
                     EOR             R18, R18                        ; move the value of zero into TCCR1A
-                    ST              X, R18
-
-                    LDI             XL, 0x81                        ; load the address of TCCR1B into the X register (TCCR1B=0x81)
-                    LDI             XH, 0x00
+                    STS             TCCR1A, R18
 
                     LDI             R18, (1<<CS12)                  ; set the prescaler for timer 1 to 256
-                    ST              X, R18
-
-                    LDI             XL, 0x6f                        ; load the address of TIMSK1 into the X register (TIMSK1=0x6f)
-                    LDI             XH, 0x00
+                    STS             TCCR1B, R18
 
                     LDI             R18, (1<<TOIE1)                 ; enable timer overflow interrupts and enable global interrupts
-                    ST              X, R18
+                    STS             TIMSK1, R18
                     SEI
 
 LOOPFOREVER:        RJMP            LOOPFOREVER

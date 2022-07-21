@@ -52,7 +52,7 @@
                     RETI
 
 
-TIMER0_OVF_vect:    IN              R18, SREG                       ; store the contents of SREG on the stack
+TIMER0_OVF_vect:    IN              R18, _SFR_IO_ADDR (SREG)        ; store the contents of SREG on the stack
                     PUSH            R18
 
                     INC             R19                             ; increment the overflow counter and only pass if it is equal to 4
@@ -64,29 +64,29 @@ TIMER0_OVF_vect:    IN              R18, SREG                       ; store the 
                     OUT             PORTB, R17
 
                     POP             R18                             ; restore the contents of SREG from the stack and return
-                    OUT             SREG, R18
+                    OUT             _SFR_IO_ADDR (SREG), R18
                     RETI
 
 
-RESET:              LDI             R16, 0x5f                       ; set up stack pointer (RAMEND = 0x025f)
-                    OUT             SPL, R16
-                    LDI             R16, 0x02
-                    OUT             SPH, R16
+RESET:              LDI             R16, lo8 (RAMEND)               ; set up stack pointer (RAMEND = 0x025f)
+                    OUT             _SFR_IO_ADDR (SPL), R16
+                    LDI             R16, hi8 (RAMEND)
+                    OUT             _SFR_IO_ADDR (SPH), R16
 
                     LDI             R16, (1<<PB4)                   ; set PB4 as output
                     OUT             DDRB, R16
 
                     EOR             R18, R18                        ; set timer to normal mode
-                    OUT             TCCR0A, R18
+                    OUT             _SFR_IO_ADDR (TCCR0A), R18
 
                     LDI             R18, (1<<CS02)|(1<<CS00)        ; set prescaler to 1024 (also starts the timer)
-                    OUT             TCCR0B, R18
+                    OUT             _SFR_IO_ADDR (TCCR0B), R18
 
                     LDI             R18, (1<<TOIE0)                 ; enable timer overflow interrupt and enable global interrupts
-                    OUT             TIMSK, R18
+                    OUT             _SFR_IO_ADDR (TIMSK), R18
                     SEI
 
                     LDI             R18, (1<<SE)                    ; put the attiny in IDLE sleep mode
-                    OUT             MCUCR, R18
+                    OUT             _SFR_IO_ADDR (MCUCR), R18
 GOTOSLEEP:          SLEEP
                     RJMP            GOTOSLEEP
