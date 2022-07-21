@@ -46,7 +46,6 @@ assemble:
 	mv $(FILENAME).S.obj build/$(FILENAME).o
 	mv $(FILENAME).S.hex build/$(FILENAME).hex
 	mv $(FILENAME).S.eep.hex build/$(FILENAME).eep.hex
-	$(SIZE) --format=avr --mcu=$(DEVICE) build/$(FILENAME).elf
 
 else
 
