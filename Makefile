@@ -15,17 +15,17 @@ BAUD		= 19200
 
 # ---------- ATmega328P (Arduino UNO) ----------
 
-# DEVICE		= atmega328p
-# F_CPU		= 16000000UL
-# LED_PIN		= PB5
+DEVICE		= atmega328p
+F_CPU		= 16000000UL
+LED_PIN		= PB5
 
 # ------------------------------
 
 # ---------- ATtiny85 ----------
 
-DEVICE		= attiny85
-F_CPU		= 1000000UL
-LED_PIN		= PB1
+# DEVICE		= attiny85
+# F_CPU		= 1000000UL
+# LED_PIN		= PB1
 
 # ------------------------------
 
@@ -46,11 +46,12 @@ assemble:
 	mv $(FILENAME).S.obj build/$(FILENAME).o
 	mv $(FILENAME).S.hex build/$(FILENAME).hex
 	mv $(FILENAME).S.eep.hex build/$(FILENAME).eep.hex
+	$(SIZE) --format=avr --mcu=$(DEVICE) build/$(FILENAME).elf
 
 else
 
 assemble:
-	$(COMPILE) -mmcu=$(DEVICE) -D__SFR_OFFSET=0 -DF_CPU=$(F_CPU) -DLED_PIN=$(LED_PIN) -E $(FILENAME).S -o build/$(FILENAME).s
+	$(COMPILE) -mmcu=$(DEVICE) -DF_CPU=$(F_CPU) -DLED_PIN=$(LED_PIN) -E $(FILENAME).S -o build/$(FILENAME).s
 	$(COMPILE) -mmcu=$(DEVICE) -nostdlib -g build/$(FILENAME).s -o build/$(FILENAME).o
 	$(LINK) -o build/$(FILENAME).elf build/$(FILENAME).o
 	$(OBJCOPY) build/$(FILENAME).elf build/$(FILENAME).hex -O ihex
