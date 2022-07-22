@@ -45,6 +45,10 @@ UART_INIT:
                     .equ            BAUD_RATE,        (9600)
                     .equ            BAUD_PRESCALER,   (16000000 / (BAUD_RATE * 16))
 
+                    ; save the states of R16 and R17
+                    PUSH            R16
+                    PUSH            R17
+
                     ; initialize UART to 9600 baud
                     LDI             R16, lo8 (BAUD_PRESCALER)
                     LDI             R17, hi8 (BAUD_PRESCALER)
@@ -55,12 +59,18 @@ UART_INIT:
                     LDI             R16, (1<<TXEN0)|(1<<RXEN0)
                     STS             UCSR0B, R16
 
+                    ; restore the states of R16 and R17 and return
+                    POP             R17
+                    POP             R16
                     RET
 
 
 ; writes a single character to the UART
 ; R20 should have the character (single byte) to send
 UART_WRITE_CHAR:
+                    ; save the state of R16
+                    PUSH            R16
+
                     ; wait for the write buffer to become empty (bit UDRE0 of UCSR0A register should be set)
                     LDS             R16, UCSR0A
                     SBRS            R16, UDRE0
@@ -69,11 +79,20 @@ UART_WRITE_CHAR:
                     ; copy the argument to the UDR0 register to be sent out
                     STS             UDR0, R20
 
+                    ; restore the state of R16 and return
+                    POP             R16
                     RET
 
 
 ; writes a NULL terminated string to the UART
 UART_WRITE_STR:
+
+                    ; save the states of R16 and R17
+                    PUSH            R16
+                    PUSH            R17
+
+UART_WRITE_STR_LOOP:
+
                     ; load the current byte/character pointed to be Z and increment the Z pointer
                     LPM             R16, Z+
 
@@ -89,9 +108,12 @@ UART_WRITE_STR_CHAR:
 
                     ; copy the current character to the UDR0 register to send it out and jump back to the start
                     STS             UDR0, R16
-                    RJMP            UART_WRITE_STR
+                    RJMP            UART_WRITE_STR_LOOP
 
 UART_WRITE_STR_END:
+                    ; restore the states of R16 and R17 and return
+                    POP             R17
+                    POP             R16
                     RET
 
 
@@ -99,6 +121,13 @@ UART_WRITE_STR_END:
 ; the Z register pair should have the address of the buffer
 ; R20 should have the length of the buffer
 UART_WRITE_BUFF:
+
+                    ; save the states of R16 and R17
+                    PUSH            R16
+                    PUSH            R17
+
+UART_WRITE_BUFF_LOOP:
+
                     ; load the current byte/character pointed to be Z and increment the Z pointer
                     LPM             R16, Z+
 
@@ -116,7 +145,10 @@ UART_WRITE_BUFF_CHAR:
                     ; copy the current character to the UDR0 register to send it out and jump back to the start
                     STS             UDR0, R16
                     DEC             R20
-                    RJMP            UART_WRITE_BUFF
+                    RJMP            UART_WRITE_BUFF_LOOP
 
 UART_WRITE_BUFF_END:
+                    ; restore the states of R16 and R17 and return
+                    POP             R17
+                    POP             R16
                     RET
