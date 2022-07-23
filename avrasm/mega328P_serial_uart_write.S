@@ -69,11 +69,11 @@ UART_INIT:
 UART_WRITE_CHAR:
                     ; save the state of R16
                     PUSH            R16
-
+UART_WRITE_CHAR_LOOP:
                     ; wait for the write buffer to become empty (bit UDRE0 of UCSR0A register should be set)
                     LDS             R16, UCSR0A
                     SBRS            R16, UDRE0
-                    RJMP            UART_WRITE_CHAR
+                    RJMP            UART_WRITE_CHAR_LOOP
 
                     ; copy the argument to the UDR0 register to be sent out
                     STS             UDR0, R20

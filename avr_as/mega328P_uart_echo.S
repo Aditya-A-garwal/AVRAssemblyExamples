@@ -30,9 +30,7 @@ LOOP:
 
 
 
-HELLO_STRING:       .ascii          "Starting Echo Program"
-                    .byte           10
-                    .byte           0
+HELLO_STRING:       .ascii          "Starting Echo Program\x0A\x00\x00"
 HELLO_LEN_LABEL:    .equ            HELLO_LEN, (HELLO_LEN_LABEL - HELLO_STRING)
 
 
@@ -66,11 +64,11 @@ UART_INIT:
 UART_WRITE_CHAR:
                     ; save the state of R16
                     PUSH            R16
-
+UART_WRITE_CHAR_LOOP:
                     ; wait for the write buffer to become empty (bit UDRE0 of UCSR0A register should be set)
                     LDS             R16, UCSR0A
                     SBRS            R16, UDRE0
-                    RJMP            UART_WRITE_CHAR
+                    RJMP            UART_WRITE_CHAR_LOOP
 
                     ; copy the argument to the UDR0 register to be sent out
                     STS             UDR0, R20
